@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farmdustry.Client", "Farmdu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farmdustry.Network", "Farmdustry.Network\Farmdustry.Network.csproj", "{2658AEE2-D456-44A8-9BD5-6C4348C29F41}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farmdustry.Helper", "Farmdustry.HelperFunctions\Farmdustry.Helper.csproj", "{6D0A9B8B-6FDF-4449-8E55-CABBE9D8346A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farmdustry.Helper", "Farmdustry.Helper\Farmdustry.Helper.csproj", "{BCED8176-F79F-4CAD-A3C6-C9BD362E8C50}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,14 +51,14 @@ Global
 		{2658AEE2-D456-44A8-9BD5-6C4348C29F41}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2658AEE2-D456-44A8-9BD5-6C4348C29F41}.Release|x86.ActiveCfg = Release|Any CPU
 		{2658AEE2-D456-44A8-9BD5-6C4348C29F41}.Release|x86.Build.0 = Release|Any CPU
-		{6D0A9B8B-6FDF-4449-8E55-CABBE9D8346A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6D0A9B8B-6FDF-4449-8E55-CABBE9D8346A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6D0A9B8B-6FDF-4449-8E55-CABBE9D8346A}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6D0A9B8B-6FDF-4449-8E55-CABBE9D8346A}.Debug|x86.Build.0 = Debug|Any CPU
-		{6D0A9B8B-6FDF-4449-8E55-CABBE9D8346A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6D0A9B8B-6FDF-4449-8E55-CABBE9D8346A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6D0A9B8B-6FDF-4449-8E55-CABBE9D8346A}.Release|x86.ActiveCfg = Release|Any CPU
-		{6D0A9B8B-6FDF-4449-8E55-CABBE9D8346A}.Release|x86.Build.0 = Release|Any CPU
+		{BCED8176-F79F-4CAD-A3C6-C9BD362E8C50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCED8176-F79F-4CAD-A3C6-C9BD362E8C50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCED8176-F79F-4CAD-A3C6-C9BD362E8C50}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BCED8176-F79F-4CAD-A3C6-C9BD362E8C50}.Debug|x86.Build.0 = Debug|Any CPU
+		{BCED8176-F79F-4CAD-A3C6-C9BD362E8C50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCED8176-F79F-4CAD-A3C6-C9BD362E8C50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCED8176-F79F-4CAD-A3C6-C9BD362E8C50}.Release|x86.ActiveCfg = Release|Any CPU
+		{BCED8176-F79F-4CAD-A3C6-C9BD362E8C50}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -53,8 +53,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Farmdustry.HelperFunctions\Farmdustry.Helper.csproj">
-      <Project>{6d0a9b8b-6fdf-4449-8e55-cabbe9d8346a}</Project>
+    <ProjectReference Include="..\Farmdustry.Helper\Farmdustry.Helper.csproj">
+      <Project>{bced8176-f79f-4cad-a3c6-c9bd362e8c50}</Project>
       <Name>Farmdustry.Helper</Name>
     </ProjectReference>
     <ProjectReference Include="..\Farmdustry.Network\Farmdustry.Network.csproj">

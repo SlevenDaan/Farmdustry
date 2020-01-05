@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Farmdustry.HelperFunctions")]
+[assembly: AssemblyTitle("Farmdustry.Helper")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Farmdustry.HelperFunctions")]
+[assembly: AssemblyProduct("Farmdustry.Helper")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("6d0a9b8b-6fdf-4449-8e55-cabbe9d8346a")]
+[assembly: Guid("bced8176-f79f-4cad-a3c6-c9bd362e8c50")]
 
 // Version information for an assembly consists of the following four values:
 //
