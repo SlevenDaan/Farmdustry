@@ -43,6 +43,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\Player.cs" />
+    <Compile Include="Inventory\Inventory.cs" />
+    <Compile Include="Inventory\ItemLibrary.cs" />
+    <Compile Include="Inventory\ItemStack.cs" />
+    <Compile Include="Inventory\ItemType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="World\Crop.cs" />
     <Compile Include="World\CropType.cs" />
