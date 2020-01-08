@@ -154,7 +154,7 @@ namespace Farmdustry.Client
             }
             if (previousMouseState.RightButton == ButtonState.Released && mouseState.RightButton == ButtonState.Pressed)
             {
-                client.Send(Commands.AddCrop(playerId, 0, 1, CropType.Rice));
+                client.Send(Commands.AddCrop(playerId, 0, 1, CropType.Carrot));
             }
 
             previousKeyboardState = keyboardState;

@@ -2,7 +2,6 @@
 {
     public enum CropType
     {
-        Wheat,
-        Rice
+        Carrot
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Farmdustry.World
 {
-    public class Crop
+    public struct Crop
     {
         private float growth;
         private float water;

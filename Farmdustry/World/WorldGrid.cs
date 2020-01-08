@@ -13,7 +13,8 @@ namespace Farmdustry.World
         private const float structureUpdateTime = 1f;
 
         private byte cropsCount = 0;
-        private List<Crop> crops = new List<Crop>();
+        private Crop?[] crops = new Crop?[WORLD_SIZE * WORLD_SIZE];
+        private Queue<int> removedCropsIndexes = new Queue<int>();
 
         public WorldGrid()
         {
@@ -198,30 +199,42 @@ namespace Farmdustry.World
             }
 
             //Check if a crop is already present
-            if (cells[y, x].Crop != null)
+            if (cells[y, x].CropIndex != -1)
             {
                 return false;
             }
 
             //Add the crop
+            int cropIndex = GetNextCropId();
             Crop crop = new Crop() { Type = cropType };
 
-            cells[y, x].Crop = crop;
-
-            crops.Add(crop);
-            cropsCount++;
+            cells[y, x].CropIndex = cropIndex;
+            crops[cropIndex] = crop;
 
             return true;
+        }
+        /// <summary>
+        /// Get an open id for a crop.
+        /// </summary>
+        /// <returns>The id.</returns>
+        private int GetNextCropId()
+        {
+            if (removedCropsIndexes.Count > 0)
+            {
+                return removedCropsIndexes.Dequeue();
+            }
+
+            return cropsCount++;
         }
         /// <summary>
         /// Get a crop from the worldgrid.
         /// </summary>
         /// <param name="y">The y coördinate of the crop.</param>
         /// <param name="x">The x coördinate of the crop.</param>
-        /// <returns>The structure at the given coördinates.</returns>
-        public Crop GetCrop(byte y, byte x)
+        /// <returns>The crop at the given coördinates.</returns>
+        public Crop? GetCrop(byte y, byte x)
         {
-            return cells[y, x].Crop;
+            return crops[cells[y, x].CropIndex];
         }
         /// <summary>
         /// Remove a crop from the gridworld.
@@ -230,21 +243,22 @@ namespace Farmdustry.World
         /// <param name="x">The x coördinate containing the crop.</param>
         /// <param name="removedCrop">Contains the removed crop.</param>
         /// <returns>If there was a crop present to remove.</returns>
-        public bool RemoveCrop(byte y, byte x, out Crop removedCrop)
+        public bool RemoveCrop(byte y, byte x, out Crop? removedCrop)
         {
-            removedCrop = cells[y, x].Crop;
+            int removedCropIndex = cells[y, x].CropIndex;
 
-            //Check if a crop is already present
-            if (removedCrop == null)
+            //Check if a crop is present
+            if (removedCropIndex == -1)
             {
+                removedCrop = null;
                 return false;
             }
 
             //Remove the crop
-            cells[y, x].Crop = null;
-
-            crops.Remove(removedCrop);
-            cropsCount--;
+            removedCrop = crops[removedCropIndex];
+            crops[removedCropIndex] = null;
+            removedCropsIndexes.Enqueue(removedCropIndex);
+            cells[y, x].CropIndex = -1;
 
             return true;
         }
@@ -256,11 +270,14 @@ namespace Farmdustry.World
         {
             for (byte i = 0; i < cropsCount; i++)
             {
-                Crop currentCrop = crops[i];
-                currentCrop.Growth += deltaTime;
-                currentCrop.Water -= deltaTime;
+                if (crops[i].HasValue)
+                {
+                    Crop currentCrop = crops[i].Value;
+                    currentCrop.Growth += deltaTime;
+                    currentCrop.Water -= deltaTime;
 
-                //TODO
+                    //TODO
+                }
             }
         }
 

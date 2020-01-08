@@ -7,8 +7,8 @@ namespace Farmdustry.Network.Command
     {
         /// <summary>
         /// Create a byte array.
-        /// 0: size of data
-        /// 1: type of command
+        /// 0: size of data.
+        /// 1: type of command.
         /// </summary>
         /// <param name="size">The size of the array.</param>
         /// <param name="commandType">The type of command.</param>
