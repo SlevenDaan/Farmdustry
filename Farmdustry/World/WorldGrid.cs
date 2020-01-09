@@ -16,6 +16,8 @@ namespace Farmdustry.World
         private Crop?[] crops = new Crop?[WORLD_SIZE * WORLD_SIZE];
         private Queue<int> removedCropsIndexes = new Queue<int>();
 
+        public int Size => WORLD_SIZE;
+
         public WorldGrid()
         {
             for (int yIndex = 0; yIndex < WORLD_SIZE; yIndex++)
@@ -235,6 +237,16 @@ namespace Farmdustry.World
         public Crop? GetCrop(byte y, byte x)
         {
             return crops[cells[y, x].CropIndex];
+        }
+        /// <summary>
+        /// Get if a crop exists.
+        /// </summary>
+        /// <param name="y">The y coördinate of the crop.</param>
+        /// <param name="x">The x coördinate of the crop.</param>
+        /// <returns>If the crop exists.</returns>
+        public bool HasCrop(byte y,byte x)
+        {
+            return cells[y, x].CropIndex != -1;
         }
         /// <summary>
         /// Remove a crop from the gridworld.

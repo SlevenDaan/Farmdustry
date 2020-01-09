@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Farmdustry.Inventory
+﻿namespace Farmdustry.Inventory
 {
     /// <summary>
     /// Item types correspond to their item id.
@@ -19,8 +13,8 @@ namespace Farmdustry.Inventory
     {
         None = 0,
 
-        CarrotSeed = 1,
+        Carrot = 1,
 
-        Carrot = 51,
+        CarrotSeed = 51,
     }
 }

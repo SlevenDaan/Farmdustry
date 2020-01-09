@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Net;
 using Farmdustry.Helper;
+using Engine.InputHandler;
 
 namespace Farmdustry.Client
 {
@@ -14,8 +15,8 @@ namespace Farmdustry.Client
     /// </summary>
     public class FarmdustryClient : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        GraphicsDeviceManager Graphics;
+        SpriteBatch SpriteBatch;
 
         private Network.Client client = new Network.Client(25566);
         private byte playerId;
@@ -24,7 +25,7 @@ namespace Farmdustry.Client
 
         public FarmdustryClient()
         {
-            graphics = new GraphicsDeviceManager(this);
+            Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
 
@@ -116,7 +117,7 @@ namespace Farmdustry.Client
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
         }
@@ -130,8 +131,7 @@ namespace Farmdustry.Client
             // TODO: Unload any non ContentManager content here
         }
 
-        KeyboardState previousKeyboardState = Keyboard.GetState();
-        MouseState previousMouseState = Mouse.GetState();
+        KeyboardHandler keyboard = new KeyboardHandler();
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -139,26 +139,21 @@ namespace Farmdustry.Client
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            keyboard.Update();
 
-            KeyboardState keyboardState = Keyboard.GetState();
-            MouseState mouseState = Mouse.GetState();
-
-            if (keyboardState.IsKeyDown(Keys.Escape))
+            if (keyboard.IsPressed(Keys.Escape))
             {
                 Exit();
             }
 
-            if (previousMouseState.LeftButton == ButtonState.Released && mouseState.LeftButton == ButtonState.Pressed)
+            if (keyboard.IsPressed(Keys.A))
             {
                 client.Send(Commands.RemoveCrop(playerId, 0, 1));
             }
-            if (previousMouseState.RightButton == ButtonState.Released && mouseState.RightButton == ButtonState.Pressed)
+            if (keyboard.IsPressed(Keys.E))
             {
                 client.Send(Commands.AddCrop(playerId, 0, 1, CropType.Carrot));
             }
-
-            previousKeyboardState = keyboardState;
-            previousMouseState = mouseState;
 
             base.Update(gameTime);
         }

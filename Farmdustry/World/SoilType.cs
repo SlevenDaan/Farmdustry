@@ -2,10 +2,10 @@
 {
     public enum SoilType
     {
-        Sand,
-        Clay,
-        Loam,
-        Stone,
-        Water
+        Stone = 0,
+        Water = 1,
+        Sand = 2,
+        Clay = 3,
+        Loam = 4
     }
 }

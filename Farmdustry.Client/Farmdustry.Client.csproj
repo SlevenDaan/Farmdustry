@@ -42,6 +42,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="FarmdustryClient.cs" />
+    <Compile Include="Graphics\WorldGridRenderer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -60,6 +61,10 @@
     <None Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Engine\Engine.csproj">
+      <Project>{9A074471-45DB-43EB-9B32-1A8D34F7C472}</Project>
+      <Name>Engine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Farmdustry.Helper\Farmdustry.Helper.csproj">
       <Project>{bced8176-f79f-4cad-a3c6-c9bd362e8c50}</Project>
       <Name>Farmdustry.Helper</Name>

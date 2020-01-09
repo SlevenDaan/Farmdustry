@@ -2,6 +2,7 @@
 {
     public enum CropType
     {
-        Carrot
+        Carrot = 1,
+        Wheat = 2
     }
 }
