@@ -285,8 +285,8 @@ namespace Farmdustry.World
                 if (crops[i].HasValue)
                 {
                     Crop currentCrop = crops[i].Value;
-                    currentCrop.Growth += deltaTime;
-                    currentCrop.Water -= deltaTime;
+                    currentCrop.Growth += deltaTime * 30f;
+                    currentCrop.Water -= deltaTime * 30f;
 
                     //TODO
                 }

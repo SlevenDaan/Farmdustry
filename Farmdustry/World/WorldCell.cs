@@ -2,10 +2,10 @@
 {
     public struct WorldCell
     {
-        public SoilType SoilType { get; private set; }
-        public bool Tilled { get; set; }
-        public Structure Structure { get; set; }
-        public int CropIndex { get; set; }
+        public readonly SoilType SoilType;
+        public bool Tilled;
+        public Structure Structure;
+        public int CropIndex;
 
         public WorldCell(SoilType soilType)
         {

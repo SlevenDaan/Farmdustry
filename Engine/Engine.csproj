@@ -42,15 +42,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Graphics\UI\Textbox.cs" />
-    <Compile Include="Graphics\UI\UILayer.cs" />
     <Compile Include="Graphics\UI\Button.cs" />
-    <Compile Include="Graphics\UI\InteractableUIElement.cs" />
     <Compile Include="Graphics\UI\Label.cs" />
-    <Compile Include="Graphics\TextureAtlas.cs" />
-    <Compile Include="Graphics\UI\TextButton.cs" />
+    <Compile Include="Graphics\UI\Textbox.cs" />
     <Compile Include="Graphics\UI\UIElement.cs" />
+    <Compile Include="Graphics\UI\UIElementState.cs" />
+    <Compile Include="Graphics\UI\UILayer.cs" />
+    <Compile Include="Graphics\TextureAtlas.cs" />
     <Compile Include="InputHandler\KeyboardHandler.cs" />
+    <Compile Include="InputHandler\MouseButtonType.cs" />
+    <Compile Include="InputHandler\MouseInputHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

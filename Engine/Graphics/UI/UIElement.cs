@@ -1,29 +1,22 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Engine.Graphics.UI
 {
-    public abstract class UIElement
+    public struct UIElement<ElementType>
     {
-        /// <summary>
-        /// The Y coördinate of the top left corner of the element.
-        /// </summary>
-        public int Y { get; set; }
-        /// <summary>
-        /// The X coördinate of the top left corner of the element.
-        /// </summary>
-        public int X { get; set; }
+        private static int nextId = 0;
 
-        public UIElement(int y, int x)
+        public readonly int Id;
+        public UIElementState State;
+        public Point Position;
+        public ElementType Element;
+
+        public UIElement(int y, int x, ElementType element, UIElementState state)
         {
-            Y = y;
-            X = x;
+            Id = nextId++;
+            State = state;
+            Position = new Point(x, y);
+            Element = element;
         }
-
-        /// <summary>
-        /// Draw the UiElement.
-        /// </summary>
-        /// <param name="spriteBatch">The sprite</param>
-        public abstract void Draw(SpriteBatch spriteBatch);
     }
 }

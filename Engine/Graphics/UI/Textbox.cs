@@ -1,37 +1,27 @@
-﻿using Engine.InputHandler;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine.Graphics.UI
 {
-    public class Textbox : InteractableUIElement
+    public struct Textbox
     {
-        private Label textLabel;
+        public Point Size;
+        public int MaxTextLength;
+        public string Text;
+        public Color FontColor;
+        public Texture2D Texture;
+        public bool Selected;
+        public Color SelectedColor;
 
-        public bool Enabled { get; set; }
-
-        public Textbox(int y, int x, SpriteFont font, Color fontColor) : base(y, x)
+        public Textbox(int height, int width, int maxTextLength, string text, Color fontColor, Texture2D texture, Color selectedColor)
         {
-            textLabel = new Label(y, x, "", font, fontColor);
-        }
-
-        public override void Update()
-        {
-            if (!Enabled)
-            {
-                return;
-            }
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
-        {
-            textLabel.Draw(spriteBatch);
+            Size = new Point(width, height);
+            MaxTextLength = maxTextLength;
+            Text = text;
+            FontColor = fontColor;
+            Texture = texture;
+            Selected = false;
+            SelectedColor = selectedColor;
         }
     }
 }
