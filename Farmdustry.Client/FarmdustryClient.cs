@@ -7,6 +7,10 @@ using System;
 using System.Net;
 using Farmdustry.Helper;
 using Engine.InputHandler;
+using Engine.Graphics.UI;
+using Farmdustry.Client.Graphics;
+using Engine.Graphics;
+using Farmdustry.Entities;
 
 namespace Farmdustry.Client
 {
@@ -15,17 +19,31 @@ namespace Farmdustry.Client
     /// </summary>
     public class FarmdustryClient : Game
     {
-        GraphicsDeviceManager Graphics;
-        SpriteBatch SpriteBatch;
+        GraphicsDeviceManager graphics;
+        SpriteBatch spriteBatch;
+
+        private KeyboardHandler keyboard = new KeyboardHandler();
+        private MouseHandler mouse = new MouseHandler();
 
         private Network.Client client = new Network.Client(25566);
         private byte playerId;
 
-        private static WorldGrid worldGrid = new WorldGrid();
+        private UILayer ui;
+
+        private TextureAtlas soilTextureAtlas;
+        private TextureAtlas cropTextureAtlas;
+        private TextureAtlas structureTextureAtlas;
+        private WorldGridRenderer worldGridRenderer;
+
+        private WorldGrid worldGrid = new WorldGrid();
+
+        //Temporary player stuff
+        private Player player = new Player();
+        private Texture2D playerTexture;
 
         public FarmdustryClient()
         {
-            Graphics = new GraphicsDeviceManager(this);
+            graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
 
@@ -38,10 +56,11 @@ namespace Farmdustry.Client
         protected override void Initialize()
         {
             Window.Title = $"Farmdustry";
+            Window.AllowUserResizing = true;
+            IsMouseVisible = true;
 
             client.DataReceived += DataReceived;
-
-            client.Connect(IPAddress.Parse("169.254.43.84"));
+            client.Connect(Network.Network.GetLocalIp());
 
             base.Initialize();
         }
@@ -93,10 +112,14 @@ namespace Farmdustry.Client
                     case CommandType.UpdatePlayerLocation:
                         {
                             byte playerId = data[startingIndex + 2];
-                            float y = BitConverter.ToSingle(data.SubArray(startingIndex + 3, 4), 0);
-                            float x = BitConverter.ToSingle(data.SubArray(startingIndex + 7, 4), 0);
-                            float yVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 11, 4), 0);
-                            float xVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 15, 4), 0);
+                            if(this.playerId != playerId)
+                            {
+                                break;
+                            }
+                            player.Y = BitConverter.ToSingle(data.SubArray(startingIndex + 3, 4), 0);
+                            player.X = BitConverter.ToSingle(data.SubArray(startingIndex + 7, 4), 0);
+                            player.YVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 11, 4), 0);
+                            player.XVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 15, 4), 0);
                             break;
                         }
                     case CommandType.SetPlayerId:
@@ -116,10 +139,16 @@ namespace Farmdustry.Client
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
+            spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            ui = new UILayer(Content.Load<SpriteFont>("UI/Arial"), Window);
+
+            soilTextureAtlas = new TextureAtlas(Content.Load<Texture2D>("SoilAtlas"), 32, 32);
+            cropTextureAtlas = new TextureAtlas(Content.Load<Texture2D>("CropAtlas"), 32, 32);
+            structureTextureAtlas = new TextureAtlas(Content.Load<Texture2D>("StructureAtlas"), 32, 32);
+            worldGridRenderer = new WorldGridRenderer( soilTextureAtlas, cropTextureAtlas, structureTextureAtlas);
+
+            playerTexture = Content.Load<Texture2D>("Player");
         }
 
         /// <summary>
@@ -128,10 +157,9 @@ namespace Farmdustry.Client
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+
         }
 
-        KeyboardHandler keyboard = new KeyboardHandler();
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -139,20 +167,38 @@ namespace Farmdustry.Client
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             keyboard.Update();
+            mouse.Update();
+
+            ui.Update(mouse);
+
+            player.YVelocity = keyboard.GetAxis(Keys.Z, Keys.S);
+            player.XVelocity = keyboard.GetAxis(Keys.Q, Keys.D);
+            player.X += player.XVelocity * deltaTime * 5;
+            player.Y += player.YVelocity * deltaTime * 5;
 
             if (keyboard.IsPressed(Keys.Escape))
             {
                 Exit();
             }
 
-            if (keyboard.IsPressed(Keys.A))
+            if (keyboard.IsPressed(Keys.D1))
             {
-                client.Send(Commands.RemoveCrop(playerId, 0, 1));
+                client.Send(Commands.AddCrop(playerId, (byte)player.Y, (byte)player.X, CropType.Carrot));
             }
-            if (keyboard.IsPressed(Keys.E))
+            if (keyboard.IsPressed(Keys.D2))
             {
-                client.Send(Commands.AddCrop(playerId, 0, 1, CropType.Carrot));
+                client.Send(Commands.RemoveCrop(playerId, (byte)player.Y, (byte)player.X));
+            }
+            if (keyboard.IsPressed(Keys.D3))
+            {
+                client.Send(Commands.AddStructure(playerId, (byte)player.Y, (byte)player.X, StructureType.Container));
+            }
+            if (keyboard.IsPressed(Keys.D4))
+            {
+                client.Send(Commands.RemoveStructure(playerId, (byte)player.Y, (byte)player.X));
             }
 
             base.Update(gameTime);
@@ -166,7 +212,13 @@ namespace Farmdustry.Client
         {
             GraphicsDevice.Clear(Color.Black);
 
-            // TODO: Add your drawing code here
+            spriteBatch.Begin(samplerState : SamplerState.PointClamp);
+            worldGridRenderer.RenderSoil(spriteBatch, worldGrid);
+            worldGridRenderer.RenderCrops(spriteBatch, worldGrid);
+            worldGridRenderer.RenderStructures(spriteBatch, worldGrid);
+            spriteBatch.Draw(playerTexture, new Rectangle((int)(player.X * 32 - 16), (int)(player.Y * 32 - 16), 32, 32), Color.White);
+            ui.Draw(spriteBatch);
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }

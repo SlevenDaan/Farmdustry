@@ -4,24 +4,24 @@ namespace Farmdustry.Inventory
 {
     public class Inventory
     {
-        private Dictionary<ItemType, int> items = new Dictionary<ItemType, int>();
+        private readonly Dictionary<ItemType, int> items = new Dictionary<ItemType, int>();
 
         /// <summary>
-        /// The weigth of all the items in the inventory.
+        /// The volume of all the items in the inventory.
         /// </summary>
-        public float Weight
+        public float Volume
         {
             get;
             private set;
         } = 0;
         /// <summary>
-        /// The max amount of weight available in the inventory.
+        /// The max amount of volume available in the inventory.
         /// </summary>
-        public float MaxWeight { get; private set; }
+        public float MaxVolume { get; private set; }
 
-        public Inventory(float maxWeight)
+        public Inventory(float maxVolume)
         {
-            MaxWeight = maxWeight;
+            MaxVolume = maxVolume;
         }
 
         /// <summary>
@@ -32,10 +32,10 @@ namespace Farmdustry.Inventory
         /// <returns>If the item has been added.</returns>
         public bool AddItem(ItemType itemType, int amount)
         {
-            float addedWeight = ItemLibrary.GetWeight(itemType) * amount;
+            float addedWeight = ItemLibrary.GetVolume(itemType) * amount;
 
             //Check if there is enough space
-            if (addedWeight + Weight > MaxWeight)
+            if (addedWeight + Volume > MaxVolume)
             {
                 return false;
             }
@@ -48,7 +48,7 @@ namespace Farmdustry.Inventory
             items[itemType] = amount;
 
             //Add weight to the inventory
-            Weight += addedWeight;
+            Volume += addedWeight;
 
             return true;
         }
@@ -84,7 +84,7 @@ namespace Farmdustry.Inventory
             items[itemType] -= amount;
 
             //Remove weight from the inventory
-            Weight -= ItemLibrary.GetWeight(itemType) * amount;
+            Volume -= ItemLibrary.GetVolume(itemType) * amount;
 
             return true;
         }

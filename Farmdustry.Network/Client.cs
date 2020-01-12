@@ -68,7 +68,14 @@ namespace Farmdustry.Network
                 throw new NetworkException("The client is not yet connected");
             }
 
-            socket.Send(data);
+            try
+            {
+                socket.Send(data);
+            }
+            catch (SocketException)
+            {
+                //Client has disconnected
+            }
         }
     }
 }

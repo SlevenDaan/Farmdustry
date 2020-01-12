@@ -2,7 +2,7 @@
 {
     public static class ItemLibrary
     {
-        public static float GetWeight(ItemType type)
+        public static float GetVolume(ItemType type)
         {
             return 1;
         }

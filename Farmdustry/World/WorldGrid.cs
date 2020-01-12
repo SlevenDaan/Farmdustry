@@ -5,16 +5,16 @@ namespace Farmdustry.World
     public class WorldGrid
     {
         private const int WORLD_SIZE = 16;
-        private WorldCell[,] cells = new WorldCell[WORLD_SIZE, WORLD_SIZE];
+        private readonly WorldCell[,] cells = new WorldCell[WORLD_SIZE, WORLD_SIZE];
 
         private byte structuresCount = 0;
-        private List<Structure> structures = new List<Structure>();
+        private readonly List<Structure> structures = new List<Structure>();
         private float structureUpdateTimer = 0;
         private const float structureUpdateTime = 1f;
 
         private byte cropsCount = 0;
-        private Crop?[] crops = new Crop?[WORLD_SIZE * WORLD_SIZE];
-        private Queue<int> removedCropsIndexes = new Queue<int>();
+        private readonly Crop[] crops = new Crop[WORLD_SIZE * WORLD_SIZE];
+        private readonly Queue<int> removedCropsIndexes = new Queue<int>();
 
         public int Size => WORLD_SIZE;
 
@@ -70,7 +70,7 @@ namespace Farmdustry.World
         /// <returns>If the structure has been added.</returns>
         public bool AddStructure(byte y, byte x, StructureType structureType)
         {
-            Structure structure = StructureFactory.Create(structureType);
+            Structure structure = StructureFactory.Create(y, x, structureType);
             //Check if structureType has a valid creation
             if (structure == null)
             {
@@ -126,6 +126,16 @@ namespace Farmdustry.World
             return cells[y, x].Structure;
         }
         /// <summary>
+        /// Get if a structure exists.
+        /// </summary>
+        /// <param name="y">The y coördinate of the structure.</param>
+        /// <param name="x">The x coördinate of the structure.</param>
+        /// <returns>If the structure exists.</returns>
+        public bool HasStructure(byte y, byte x)
+        {
+            return cells[y, x].Structure != null;
+        }
+        /// <summary>
         /// Remove a structure from the worldgrid.
         /// </summary>
         /// <param name="y">A y coördinate containing the structure.</param>
@@ -134,6 +144,13 @@ namespace Farmdustry.World
         /// <returns>If there was a structure present to remove.</returns>
         public bool RemoveStructure(byte y, byte x, out Structure removedStructure)
         {
+            //Check if structureType has a valid creation
+            if (IsOutOfBound(y, x))
+            {
+                removedStructure = null;
+                return false;
+            }
+
             removedStructure = cells[y, x].Structure;
 
             //Check if there is an existing structure
@@ -143,6 +160,8 @@ namespace Farmdustry.World
             }
 
             //Remove the structure
+            y = removedStructure.Y;
+            x = removedStructure.X;
             byte height = removedStructure.Height;
             byte width = removedStructure.Width;
 
@@ -208,10 +227,8 @@ namespace Farmdustry.World
 
             //Add the crop
             int cropIndex = GetNextCropId();
-            Crop crop = new Crop() { Type = cropType };
-
+            crops[cropIndex] = new Crop() { Type = cropType };
             cells[y, x].CropIndex = cropIndex;
-            crops[cropIndex] = crop;
 
             return true;
         }
@@ -233,8 +250,8 @@ namespace Farmdustry.World
         /// </summary>
         /// <param name="y">The y coördinate of the crop.</param>
         /// <param name="x">The x coördinate of the crop.</param>
-        /// <returns>The crop at the given coördinates.</returns>
-        public Crop? GetCrop(byte y, byte x)
+        /// <returns>A copy of the crop at the given coördinates.</returns>
+        public Crop GetCrop(byte y, byte x)
         {
             return crops[cells[y, x].CropIndex];
         }
@@ -255,20 +272,27 @@ namespace Farmdustry.World
         /// <param name="x">The x coördinate containing the crop.</param>
         /// <param name="removedCrop">Contains the removed crop.</param>
         /// <returns>If there was a crop present to remove.</returns>
-        public bool RemoveCrop(byte y, byte x, out Crop? removedCrop)
+        public bool RemoveCrop(byte y, byte x, out Crop removedCrop)
         {
+            //Check if position is out of bounds
+            if (IsOutOfBound(y, x))
+            {
+                removedCrop = new Crop();
+                return false;
+            }
+
             int removedCropIndex = cells[y, x].CropIndex;
 
             //Check if a crop is present
             if (removedCropIndex == -1)
             {
-                removedCrop = null;
+                removedCrop = new Crop();
                 return false;
             }
 
             //Remove the crop
             removedCrop = crops[removedCropIndex];
-            crops[removedCropIndex] = null;
+            crops[removedCropIndex].Type = CropType.None;
             removedCropsIndexes.Enqueue(removedCropIndex);
             cells[y, x].CropIndex = -1;
 
@@ -282,11 +306,10 @@ namespace Farmdustry.World
         {
             for (byte i = 0; i < cropsCount; i++)
             {
-                if (crops[i].HasValue)
+                if (crops[i].Type!=CropType.None)
                 {
-                    Crop currentCrop = crops[i].Value;
-                    currentCrop.Growth += deltaTime * 30f;
-                    currentCrop.Water -= deltaTime * 30f;
+                    crops[i].Growth += deltaTime * 1f/30f;
+                    crops[i].Water -= deltaTime * 1f/30f;
 
                     //TODO
                 }

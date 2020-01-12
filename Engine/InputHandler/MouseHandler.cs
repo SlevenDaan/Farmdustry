@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Engine.InputHandler
 {
-    public class MouseInputHandler
+    public class MouseHandler
     {
         private bool[] previousPressedMouseButtons = new bool[5] { false, false, false, false, false };
         private bool[] currentPressedMouseButtons = new bool[5] { false, false, false, false, false };
@@ -18,7 +18,9 @@ namespace Engine.InputHandler
         public void Update()
         {
             MouseState mouse = Mouse.GetState();
+
             Position = mouse.Position;
+
             previousPressedMouseButtons = currentPressedMouseButtons;
             currentPressedMouseButtons = new bool[5] {
                 mouse.LeftButton == ButtonState.Pressed,

@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Farmdustry.World.Structures;
 
 namespace Farmdustry.World
 {
     public static class StructureFactory
     {
-        public static Structure Create(StructureType type)
+        public static Structure Create(byte y, byte x, StructureType type)
         {
             switch (type)
             {
+                case StructureType.Container:
+                    return new Container(y, x);
+
                 default:
                     return null;
             }

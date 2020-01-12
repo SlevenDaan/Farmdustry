@@ -137,7 +137,14 @@ namespace Farmdustry.Network
             {
                 if (client.Socket.Connected)
                 {
-                    client.Socket.Send(data);
+                    try
+                    {
+                        client.Socket.Send(data);
+                    }
+                    catch (SocketException)
+                    {
+                        //Client has disconnected
+                    }
                 }
             }
         }
@@ -152,7 +159,14 @@ namespace Farmdustry.Network
             {
                 if (clientIds.Contains(client.Id) && client.Socket.Connected)
                 {
-                    client.Socket.Send(data);
+                    try
+                    {
+                        client.Socket.Send(data);
+                    }
+                    catch (SocketException)
+                    {
+                        //Client has disconnected
+                    }
                 }
             }
         }

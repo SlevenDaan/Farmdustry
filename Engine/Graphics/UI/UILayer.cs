@@ -28,8 +28,9 @@ namespace Engine.Graphics.UI
         /// <remarks>The int given is the id of the button.</remarks>
         public Action<int> ButtonClicked;
 
-        public UILayer(GameWindow window)
+        public UILayer(SpriteFont defaultFont, GameWindow window)
         {
+            Font = defaultFont;
             window.TextInput += TextInput;
         }
 
@@ -48,7 +49,7 @@ namespace Engine.Graphics.UI
         /// Update all ui elements.
         /// </summary>
         /// <param name="mouseInput">The mouseinput to check for collision and selection.</param>
-        public void Update(MouseInputHandler mouseInput)
+        public void Update(MouseHandler mouseInput)
         {
             UpdateButtons(mouseInput);
             UpdateTextboxes(mouseInput);
@@ -72,7 +73,7 @@ namespace Engine.Graphics.UI
 
             //Add the new label
             labels[labelCount] = new UIElement<Label>(y, x, new Label(text, fontColor), state);
-            return buttons[buttonCount++].Id;
+            return labels[labelCount++].Id;
         }
         /// <summary>
         /// Remove a label from the layer.
@@ -181,7 +182,7 @@ namespace Engine.Graphics.UI
         /// Update all enabled buttons.
         /// </summary>
         /// <param name="mouseInput">The mouseinput to check for collision and selection.</param>
-        private void UpdateButtons(MouseInputHandler mouseInput)
+        private void UpdateButtons(MouseHandler mouseInput)
         {
             bool mouseClicked = !mouseInput.IsPressed(MouseButtonType.Left);
             Point mousePosition = Mouse.GetState().Position;
@@ -215,9 +216,9 @@ namespace Engine.Graphics.UI
         /// <param name="text">The text of the textbox.</param>
         /// <param name="fontColor">The color of the font of the textbox.</param>
         /// <param name="texture">The texture of the textbox.</param>
-        /// <param name="selecedColor">The color of the textbox when selected.</param>
+        /// <param name="selectedColor">The color of the textbox when selected.</param>
         /// <returns>The id of the textbox.</returns>
-        public int AddTextbox(int y, int x, UIElementState state, int height, int width, int maxTextLength, string text, Color fontColor, Texture2D texture, Color selecedColor)
+        public int AddTextbox(int y, int x, UIElementState state, int height, int width, int maxTextLength, string text, Color fontColor, Texture2D texture, Color selectedColor)
         {
             //Make the textbox array 1 bigger
             UIElement<Textbox>[] oldTextboxes = textboxes;
@@ -225,7 +226,7 @@ namespace Engine.Graphics.UI
             oldTextboxes.CopyTo(textboxes, 0);
 
             //Add the new textbox
-            textboxes[textboxCount] = new UIElement<Textbox>(y, x, new Textbox(height, width, maxTextLength, text, fontColor, texture, selecedColor), state);
+            textboxes[textboxCount] = new UIElement<Textbox>(y, x, new Textbox(height, width, maxTextLength, text, fontColor, texture, selectedColor), state);
             return textboxes[textboxCount++].Id;
         }
         /// <summary>
@@ -275,9 +276,9 @@ namespace Engine.Graphics.UI
         /// Update all enabled textboxes.
         /// </summary>
         /// <param name="mouseInput">The mouseinput to check for collision and selection.</param>
-        private void UpdateTextboxes(MouseInputHandler mouseInput)
+        private void UpdateTextboxes(MouseHandler mouseInput)
         {
-            bool mouseClicked = !mouseInput.IsPressed(MouseButtonType.Left);
+            bool mouseClicked = mouseInput.IsPressed(MouseButtonType.Left);
             bool textTyped = newInputText != string.Empty;
             Point mousePosition = mouseInput.Position;
 
@@ -288,11 +289,11 @@ namespace Engine.Graphics.UI
                     continue;
                 }
 
-                if (textTyped)
+                if (textTyped && textboxes[i].Element.Selected)
                 {
                     textboxes[i].Element.Text += newInputText;
                     //Remove access text
-                    if(textboxes[i].Element.Text.Length> textboxes[i].Element.MaxTextLength)
+                    if (textboxes[i].Element.Text.Length > textboxes[i].Element.MaxTextLength)
                     {
                         textboxes[i].Element.Text = textboxes[i].Element.Text.Substring(0, textboxes[i].Element.MaxTextLength);
                     }
