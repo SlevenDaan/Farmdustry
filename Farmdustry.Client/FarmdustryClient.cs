@@ -11,6 +11,7 @@ using Engine.Graphics.UI;
 using Farmdustry.Client.Graphics;
 using Engine.Graphics;
 using Farmdustry.Entities;
+using Farmdustry.Inventory;
 
 namespace Farmdustry.Client
 {
@@ -39,6 +40,7 @@ namespace Farmdustry.Client
 
         //Temporary player stuff
         private Player player = new Player();
+        private Inventory.Inventory playerInventory = new Inventory.Inventory(Inventory.Inventory.PLAYER_INVENTORY_VOLUME);
         private Texture2D playerTexture;
 
         public FarmdustryClient()
@@ -120,6 +122,30 @@ namespace Farmdustry.Client
                             player.X = BitConverter.ToSingle(data.SubArray(startingIndex + 7, 4), 0);
                             player.YVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 11, 4), 0);
                             player.XVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 15, 4), 0);
+                            break;
+                        }
+                    case CommandType.AddItemToInventory:
+                        {
+                            byte playerId = data[startingIndex + 2];
+                            if(this.playerId != playerId)
+                            {
+                                break;
+                            }
+                            ItemType itemType = (ItemType)data[startingIndex + 3];
+                            int amount = BitConverter.ToInt32(data.SubArray(startingIndex + 4, 4), 0);
+                            playerInventory.AddItem(itemType, amount);
+                            break;
+                        }
+                    case CommandType.RemoveItemFromInventory:
+                        {
+                            byte playerId = data[startingIndex + 2];
+                            if (this.playerId != playerId)
+                            {
+                                break;
+                            }
+                            ItemType itemType = (ItemType)data[startingIndex + 3];
+                            int amount = BitConverter.ToInt32(data.SubArray(startingIndex + 4, 4), 0);
+                            playerInventory.RemoveItem(itemType, amount);
                             break;
                         }
                     case CommandType.SetPlayerId:

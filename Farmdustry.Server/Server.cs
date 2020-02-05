@@ -4,10 +4,11 @@ using System;
 using System.Diagnostics;
 using System.Timers;
 using Farmdustry.Helper;
+using Farmdustry.Inventory;
 
 namespace Farmdustry.Server
 {
-    class Program
+    class Server
     {
         private const int TICK_RATE = 10;
         private static Timer timer;
@@ -17,6 +18,8 @@ namespace Farmdustry.Server
         private static CommandList commandsToSendOnNextTick = new CommandList();
 
         private static WorldGrid worldGrid = new WorldGrid();
+
+        private static InventoryList inventories = new InventoryList();
 
         static void Main(string[] arguments)
         {
@@ -54,7 +57,15 @@ namespace Farmdustry.Server
                             byte y = data[startingIndex + 3];
                             byte x = data[startingIndex + 4];
                             CropType cropType = (CropType)data[startingIndex + 5];
-                            valid = worldGrid.AddCrop(y, x, cropType);
+
+                            inventories.GetInventory(playerId, out Inventory.Inventory inventory);
+                            ItemType cropItemType = (ItemType)((int)cropType + 50);//Convert crop to seed item
+                            //Check if player has enough seeds to plant a crop
+                            if (inventory.RemoveItem(cropItemType, 1))
+                            {
+                                AddDataToCommandList(Commands.RemoveItemFromInventory(playerId, cropItemType, 1));
+                                valid = worldGrid.AddCrop(y, x, cropType);
+                            }
                             break;
                         }
                     case CommandType.RemoveCrop:
@@ -62,7 +73,22 @@ namespace Farmdustry.Server
                             byte playerId = data[startingIndex + 2];
                             byte y = data[startingIndex + 3];
                             byte x = data[startingIndex + 4];
-                            valid = worldGrid.RemoveCrop(y, x, out _);
+
+                            if(valid = worldGrid.RemoveCrop(y, x, out Crop crop))
+                            {
+                                inventories.GetInventory(playerId, out Inventory.Inventory inventory);
+                                ItemType cropItemType = (ItemType)((int)crop.Type + (50 * Convert.ToInt32(crop.Growth != 1))); //Convert crop to crop seed or item
+
+                                //Check if player has enough space in their inventory
+                                if (inventory.AddItem(cropItemType, 1))
+                                {
+                                    AddDataToCommandList(Commands.AddItemToInventory(playerId, cropItemType, 1));
+                                }
+                                else
+                                {
+                                    //TODO Drop the item
+                                }
+                            }
                             break;
                         }
                     case CommandType.AddStructure:
@@ -89,8 +115,29 @@ namespace Farmdustry.Server
                             float x = BitConverter.ToSingle(data.SubArray(startingIndex + 7, 4), 0);
                             float yVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 11, 4), 0);
                             float xVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 15, 4), 0);
+                            //TODO Change player position
                             //TODO Collision check
                             valid = true;
+                            break;
+                        }
+                    case CommandType.AddItemToInventory:
+                        {
+                            byte playerId = data[startingIndex + 2];
+                            ItemType itemType = (ItemType)data[startingIndex + 3];
+                            int amount = BitConverter.ToInt32(data.SubArray(startingIndex + 4, 4), 0);
+
+                            inventories.GetInventory(playerId, out Inventory.Inventory inventory);
+                            valid = inventory.AddItem(itemType, amount);
+                            break;
+                        }
+                    case CommandType.RemoveItemFromInventory:
+                        {
+                            byte playerId = data[startingIndex + 2];
+                            ItemType itemType = (ItemType)data[startingIndex + 3];
+                            int amount = BitConverter.ToInt32(data.SubArray(startingIndex + 4, 4), 0);
+
+                            inventories.GetInventory(playerId, out Inventory.Inventory inventory);
+                            valid = inventory.RemoveItem(itemType, amount);
                             break;
                         }
                 }
@@ -99,13 +146,18 @@ namespace Farmdustry.Server
 
                 if (valid)
                 {
-                    lock (commandsToSendOnNextTick)
-                    {
-                        commandsToSendOnNextTick.Add(data.SubArray(startingIndex, dataSize));
-                    }
+                    AddDataToCommandList(data.SubArray(startingIndex, dataSize));
                 }
 
                 startingIndex += dataSize;
+            }
+        }
+
+        private static void AddDataToCommandList(byte[] data)
+        {
+            lock (commandsToSendOnNextTick)
+            {
+                commandsToSendOnNextTick.Add(data);
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using Farmdustry.World;
+﻿using Farmdustry.Inventory;
+using Farmdustry.World;
 using System;
 
 namespace Farmdustry.Network.Command
@@ -74,6 +75,24 @@ namespace Farmdustry.Network.Command
             BitConverter.GetBytes(x).CopyTo(data, 7);
             BitConverter.GetBytes(yVelocity).CopyTo(data, 11);
             BitConverter.GetBytes(xVelocity).CopyTo(data, 15);
+            return data;
+        }
+
+        public static byte[] AddItemToInventory(byte playerId, ItemType itemType, int amount)
+        {
+            byte[] data = CreateData(8, CommandType.AddItemToInventory);
+            data[2] = playerId;
+            data[3] = (byte)itemType;
+            BitConverter.GetBytes(amount).CopyTo(data, 4);
+            return data;
+        }
+
+        public static byte[] RemoveItemFromInventory(byte playerId, ItemType itemType, int amount)
+        {
+            byte[] data = CreateData(8, CommandType.RemoveItemFromInventory);
+            data[2] = playerId;
+            data[3] = (byte)itemType;
+            BitConverter.GetBytes(amount).CopyTo(data, 4);
             return data;
         }
 

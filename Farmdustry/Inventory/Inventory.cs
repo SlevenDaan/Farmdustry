@@ -4,6 +4,8 @@ namespace Farmdustry.Inventory
 {
     public class Inventory
     {
+        public const float PLAYER_INVENTORY_VOLUME = 10;
+
         private readonly Dictionary<ItemType, int> items = new Dictionary<ItemType, int>();
 
         /// <summary>
