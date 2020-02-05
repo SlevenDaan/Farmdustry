@@ -38,8 +38,7 @@ namespace Farmdustry.Client
 
         private WorldGrid worldGrid = new WorldGrid();
 
-        //Temporary player stuff
-        private Player player = new Player();
+        private PlayerList players = new PlayerList();
         private Inventory.Inventory playerInventory = new Inventory.Inventory(Inventory.Inventory.PLAYER_INVENTORY_VOLUME);
         private Texture2D playerTexture;
 
@@ -114,14 +113,11 @@ namespace Farmdustry.Client
                     case CommandType.UpdatePlayerLocation:
                         {
                             byte playerId = data[startingIndex + 2];
-                            if(this.playerId != playerId)
-                            {
-                                break;
-                            }
-                            player.Y = BitConverter.ToSingle(data.SubArray(startingIndex + 3, 4), 0);
-                            player.X = BitConverter.ToSingle(data.SubArray(startingIndex + 7, 4), 0);
-                            player.YVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 11, 4), 0);
-                            player.XVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 15, 4), 0);
+                            float y = BitConverter.ToSingle(data.SubArray(startingIndex + 3, 4), 0);
+                            float x = BitConverter.ToSingle(data.SubArray(startingIndex + 7, 4), 0);
+                            float yVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 11, 4), 0);
+                            float xVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 15, 4), 0);
+                            players.SetPlayerPositionAndVelocity(playerId, y, x, yVelocity, xVelocity);
                             break;
                         }
                     case CommandType.AddItemToInventory:
@@ -151,6 +147,7 @@ namespace Farmdustry.Client
                     case CommandType.SetPlayerId:
                         {
                             playerId = data[startingIndex + 2];
+                            
                             break;
                         }
                 }
@@ -200,10 +197,15 @@ namespace Farmdustry.Client
 
             ui.Update(mouse);
 
-            player.YVelocity = keyboard.GetAxis(Keys.Z, Keys.S);
-            player.XVelocity = keyboard.GetAxis(Keys.Q, Keys.D);
-            player.X += player.XVelocity * deltaTime * 5;
-            player.Y += player.YVelocity * deltaTime * 5;
+            {
+                float yVelocity = keyboard.GetAxis(Keys.Z, Keys.S);
+                float xVelocity = keyboard.GetAxis(Keys.Q, Keys.D);
+                players.SetPlayerVelocity(playerId, yVelocity, xVelocity);
+                players.UpdatePlayers(deltaTime);
+
+                Player player = players.GetPlayerSnapshot(playerId);
+                client.Send(Commands.UpdatePlayerLocation(playerId, player.Y, player.X, player.YVelocity, player.XVelocity));
+            }
 
             if (keyboard.IsPressed(Keys.Escape))
             {
@@ -212,18 +214,22 @@ namespace Farmdustry.Client
 
             if (keyboard.IsPressed(Keys.D1))
             {
+                Player player = players.GetPlayerSnapshot(playerId);
                 client.Send(Commands.AddCrop(playerId, (byte)player.Y, (byte)player.X, CropType.Carrot));
             }
             if (keyboard.IsPressed(Keys.D2))
             {
+                Player player = players.GetPlayerSnapshot(playerId);
                 client.Send(Commands.RemoveCrop(playerId, (byte)player.Y, (byte)player.X));
             }
             if (keyboard.IsPressed(Keys.D3))
             {
+                Player player = players.GetPlayerSnapshot(playerId);
                 client.Send(Commands.AddStructure(playerId, (byte)player.Y, (byte)player.X, StructureType.Container));
             }
             if (keyboard.IsPressed(Keys.D4))
             {
+                Player player = players.GetPlayerSnapshot(playerId);
                 client.Send(Commands.RemoveStructure(playerId, (byte)player.Y, (byte)player.X));
             }
 
@@ -239,11 +245,19 @@ namespace Farmdustry.Client
             GraphicsDevice.Clear(Color.Black);
 
             spriteBatch.Begin(samplerState : SamplerState.PointClamp);
+
             worldGridRenderer.RenderSoil(spriteBatch, worldGrid);
             worldGridRenderer.RenderCrops(spriteBatch, worldGrid);
             worldGridRenderer.RenderStructures(spriteBatch, worldGrid);
-            spriteBatch.Draw(playerTexture, new Rectangle((int)(player.X * 32 - 16), (int)(player.Y * 32 - 16), 32, 32), Color.White);
+
+            for (byte i = 0; i < players.Count; i++)
+            {
+                Player player = players.GetPlayerSnapshot(i);
+                spriteBatch.Draw(playerTexture, new Rectangle((int)(player.X * 32 - 16), (int)(player.Y * 32 - 16), 32, 32), Color.White);
+            }
+
             ui.Draw(spriteBatch);
+
             spriteBatch.End();
 
             base.Draw(gameTime);

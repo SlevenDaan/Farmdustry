@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Timers;
 using Farmdustry.Helper;
 using Farmdustry.Inventory;
+using Farmdustry.Entities;
 
 namespace Farmdustry.Server
 {
@@ -19,11 +20,14 @@ namespace Farmdustry.Server
 
         private static WorldGrid worldGrid = new WorldGrid();
 
+        private static PlayerList players = new PlayerList();
         private static InventoryList inventories = new InventoryList();
 
         static void Main(string[] arguments)
         {
-            Console.Title = $"Farmdustry Server {Network.Network.GetLocalIp().ToString()}:25566";
+            int port = Convert.ToInt32(arguments[0]);
+
+            Console.Title = $"Farmdustry Server {Network.Network.GetLocalIp().ToString()}:{port}";
 
             server.ConnectionEstablished += ConnectionEstablished;
             server.DataReceived += DataReceived;
@@ -115,7 +119,7 @@ namespace Farmdustry.Server
                             float x = BitConverter.ToSingle(data.SubArray(startingIndex + 7, 4), 0);
                             float yVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 11, 4), 0);
                             float xVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 15, 4), 0);
-                            //TODO Change player position
+                            players.SetPlayerPositionAndVelocity(playerId, y, x, yVelocity, xVelocity);
                             //TODO Collision check
                             valid = true;
                             break;

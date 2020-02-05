@@ -13,7 +13,7 @@ namespace Farmdustry.Network
 
         private struct Client
         {
-            private static byte nextId = 1; //0 is used as the server
+            private static byte nextId = 0;
             public byte Id { get; private set; }
             public Socket Socket { get; private set; }
 
