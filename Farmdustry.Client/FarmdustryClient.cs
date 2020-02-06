@@ -165,6 +165,7 @@ namespace Farmdustry.Client
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             ui = new UILayer(Content.Load<SpriteFont>("UI/Arial"), Window);
+            ui.AddTextbox(0, 0, UIElementState.Active, 50, 100, 5, "", Color.Black, Content.Load<Texture2D>("Player"), Color.LightGray);
 
             soilTextureAtlas = new TextureAtlas(Content.Load<Texture2D>("SoilAtlas"), 32, 32);
             cropTextureAtlas = new TextureAtlas(Content.Load<Texture2D>("CropAtlas"), 32, 32);
