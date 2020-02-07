@@ -54,6 +54,7 @@
     <Compile Include="InputHandler\KeyboardHandler.cs" />
     <Compile Include="InputHandler\MouseButtonType.cs" />
     <Compile Include="InputHandler\MouseHandler.cs" />
+    <Compile Include="InputHandler\ScrollWheelState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

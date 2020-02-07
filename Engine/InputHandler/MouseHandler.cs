@@ -1,10 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine.InputHandler
 {
@@ -13,13 +8,34 @@ namespace Engine.InputHandler
         private bool[] previousPressedMouseButtons = new bool[5] { false, false, false, false, false };
         private bool[] currentPressedMouseButtons = new bool[5] { false, false, false, false, false };
 
+        /// <summary>
+        /// The position of the mouse on the screen.
+        /// </summary>
         public Point Position { get; private set; }
+
+        /// <summary>
+        /// The state of the scrollwheel.
+        /// </summary>
+        public ScrollWheelState ScrollWheelState { get; private set; } = ScrollWheelState.Idle;
 
         public void Update()
         {
             MouseState mouse = Mouse.GetState();
 
             Position = mouse.Position;
+
+            if (mouse.ScrollWheelValue > 0)
+            {
+                ScrollWheelState = ScrollWheelState.Upwards;
+            }
+            else if (mouse.ScrollWheelValue < 0)
+            {
+                ScrollWheelState = ScrollWheelState.Downwards;
+            }
+            else
+            {
+                ScrollWheelState = ScrollWheelState.Idle;
+            }
 
             previousPressedMouseButtons = currentPressedMouseButtons;
             currentPressedMouseButtons = new bool[5] {

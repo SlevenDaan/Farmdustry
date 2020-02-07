@@ -34,13 +34,15 @@ namespace Farmdustry.Client
         private TextureAtlas soilTextureAtlas;
         private TextureAtlas cropTextureAtlas;
         private TextureAtlas structureTextureAtlas;
+        private Texture2D playerTexture;
+
         private WorldGridRenderer worldGridRenderer;
 
         private WorldGrid worldGrid = new WorldGrid();
 
         private PlayerList players = new PlayerList();
         private Inventory.Inventory playerInventory = new Inventory.Inventory(Inventory.Inventory.PLAYER_INVENTORY_VOLUME);
-        private Texture2D playerTexture;
+        private Hotbar playerHotbar = new Hotbar();
 
         public FarmdustryClient()
         {
@@ -198,7 +200,7 @@ namespace Farmdustry.Client
 
             ui.Update(mouse);
 
-            {
+            { //Update player position
                 float yVelocity = keyboard.GetAxis(Keys.Z, Keys.S);
                 float xVelocity = keyboard.GetAxis(Keys.Q, Keys.D);
                 players.SetPlayerVelocity(playerId, yVelocity, xVelocity);
@@ -232,6 +234,11 @@ namespace Farmdustry.Client
             {
                 Player player = players.GetPlayerSnapshot(playerId);
                 client.Send(Commands.RemoveStructure(playerId, (byte)player.Y, (byte)player.X));
+            }
+
+            if (mouse.ScrollWheelState != ScrollWheelState.Idle)
+            {
+                playerHotbar.SelectSlot(playerHotbar.SelectedSlot + (int)mouse.ScrollWheelState);
             }
 
             base.Update(gameTime);

@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\PlayerList.cs" />
+    <Compile Include="Inventory\Hotbar.cs" />
     <Compile Include="Inventory\Inventory.cs" />
     <Compile Include="Inventory\ItemLibrary.cs" />
     <Compile Include="Inventory\ItemStack.cs" />
