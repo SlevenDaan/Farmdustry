@@ -1,20 +1,23 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Engine.Graphics.UI
 {
-    public struct UIElement<ElementType>
+    public abstract class UIElement
     {
-        public bool Removed;
-        public UIElementState State;
-        public Point Position;
-        public ElementType Element;
+        public UIElementState State { get; set; }
+        public Point Position { get; set; }
 
-        public UIElement(int y, int x, ElementType element, UIElementState state)
+        public UIElement(UIElementState state, Point position)
         {
-            Removed = false;
             State = state;
-            Position = new Point(x, y);
-            Element = element;
+            Position = position;
         }
+
+        /// <summary>
+        /// Draw the UIElement.
+        /// </summary>
+        /// <param name="spriteBatch">The SpriteBatch used to draw.</param>
+        public abstract void Draw(SpriteBatch spriteBatch);
     }
 }

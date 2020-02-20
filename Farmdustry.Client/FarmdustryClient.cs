@@ -166,15 +166,20 @@ namespace Farmdustry.Client
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            ui = new UILayer(Content.Load<SpriteFont>("UI/Arial"), Window);
-            ui.AddTextbox(0, 0, UIElementState.Active, 50, 100, 5, "", Color.Black, Content.Load<Texture2D>("Player"), Color.LightGray);
-
             soilTextureAtlas = new TextureAtlas(Content.Load<Texture2D>("SoilAtlas"), 32, 32);
             cropTextureAtlas = new TextureAtlas(Content.Load<Texture2D>("CropAtlas"), 32, 32);
             structureTextureAtlas = new TextureAtlas(Content.Load<Texture2D>("StructureAtlas"), 32, 32);
             worldGridRenderer = new WorldGridRenderer( soilTextureAtlas, cropTextureAtlas, structureTextureAtlas);
 
             playerTexture = Content.Load<Texture2D>("Player");
+
+            SpriteFont font = Content.Load<SpriteFont>("UI/Arial");
+            ui = new UILayer(Window);
+
+            ui.Add(new Textbox(UIElementState.Active, new Point(0, 50), new Point(100, 200), 10, "", font, Color.Black, playerTexture, Color.LightGray));
+            Button button = new Button(UIElementState.Active, new Point(300, 50), new Point(100, 10), "", font, Color.Black, playerTexture, Color.LightGray);
+            ui.Add(button);
+            ui.Add(new Label(UIElementState.Visible, new Point(150, 200), "Hello i'm mister label", font, Color.Black));
         }
 
         /// <summary>

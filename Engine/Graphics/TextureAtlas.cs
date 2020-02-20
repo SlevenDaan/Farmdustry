@@ -5,9 +5,9 @@ namespace Engine.Graphics
 {
     public class TextureAtlas
     {
-        private Texture2D textureGrid;
-        private int textureGridCellHeight;
-        private int textureGridCellWidth;
+        private readonly Texture2D textureGrid;
+        private readonly int textureGridCellHeight;
+        private readonly int textureGridCellWidth;
 
         public int YSize { get; private set; }
         public int XSize { get; private set; }

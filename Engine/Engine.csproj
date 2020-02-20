@@ -45,7 +45,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Graphics\UI\Button.cs" />
+    <Compile Include="Graphics\UI\InteractableUIElement.cs" />
     <Compile Include="Graphics\UI\Label.cs" />
+    <Compile Include="Graphics\UI\Sprite.cs" />
     <Compile Include="Graphics\UI\Textbox.cs" />
     <Compile Include="Graphics\UI\UIElement.cs" />
     <Compile Include="Graphics\UI\UIElementState.cs" />
