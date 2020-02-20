@@ -36,6 +36,8 @@ namespace Farmdustry.Client
         private TextureAtlas structureTextureAtlas;
         private Texture2D playerTexture;
 
+        private SpriteFont font;
+
         private WorldGridRenderer worldGridRenderer;
 
         private WorldGrid worldGrid = new WorldGrid();
@@ -166,20 +168,14 @@ namespace Farmdustry.Client
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            font = Content.Load<SpriteFont>("UI/Arial");
+
             soilTextureAtlas = new TextureAtlas(Content.Load<Texture2D>("SoilAtlas"), 32, 32);
             cropTextureAtlas = new TextureAtlas(Content.Load<Texture2D>("CropAtlas"), 32, 32);
             structureTextureAtlas = new TextureAtlas(Content.Load<Texture2D>("StructureAtlas"), 32, 32);
             worldGridRenderer = new WorldGridRenderer( soilTextureAtlas, cropTextureAtlas, structureTextureAtlas);
 
             playerTexture = Content.Load<Texture2D>("Player");
-
-            SpriteFont font = Content.Load<SpriteFont>("UI/Arial");
-            ui = new UILayer(Window);
-
-            ui.Add(new Textbox(UIElementState.Active, new Point(0, 50), new Point(100, 200), 10, "", font, Color.Black, playerTexture, Color.LightGray));
-            Button button = new Button(UIElementState.Active, new Point(300, 50), new Point(100, 10), "", font, Color.Black, playerTexture, Color.LightGray);
-            ui.Add(button);
-            ui.Add(new Label(UIElementState.Visible, new Point(150, 200), "Hello i'm mister label", font, Color.Black));
         }
 
         /// <summary>
@@ -205,10 +201,14 @@ namespace Farmdustry.Client
 
             ui.Update(mouse);
 
-            { //Update player position
-                float yVelocity = keyboard.GetAxis(Keys.Z, Keys.S);
-                float xVelocity = keyboard.GetAxis(Keys.Q, Keys.D);
-                players.SetPlayerVelocity(playerId, yVelocity, xVelocity);
+            { 
+                //Update player position
+                Vector2 velocity = new Vector2(keyboard.GetAxis(Keys.Q, Keys.D), keyboard.GetAxis(Keys.Z, Keys.S));
+                if (velocity.X != 0 && velocity.Y != 0)
+                {
+                    velocity.Normalize();
+                }
+                players.SetPlayerVelocity(playerId, velocity.Y, velocity.X);
                 players.UpdatePlayers(deltaTime);
 
                 Player player = players.GetPlayerSnapshot(playerId);
