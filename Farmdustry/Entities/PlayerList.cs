@@ -5,15 +5,13 @@ namespace Farmdustry.Entities
     public class PlayerList
     {
         private Player[] players = new Player[0];
-        private byte playersCount = 0;
-
         private const float PLAYER_SPEED = 5f;
 
         /// <summary>
         /// Get the current amount of player entries.
         /// </summary>
         /// <remarks>This is not the amount of players connected to the server.</remarks>
-        public byte Count => playersCount;
+        public byte Count { get; private set; } = 0;
 
         /// <summary>
         /// Set a player's velocity.
@@ -24,10 +22,10 @@ namespace Farmdustry.Entities
         public void SetPlayerVelocity(byte playerId, float yVelocity, float xVelocity)
         {
             //Add new player entries if they dont exist yet
-            if (playerId >= playersCount)
+            if (playerId >= Count)
             {
-                playersCount = (byte)(playerId + 1);
-                Array.Resize(ref players, playersCount);
+                Count = (byte)(playerId + 1);
+                Array.Resize(ref players, Count);
             }
 
             players[playerId].YVelocity = yVelocity;
@@ -45,10 +43,10 @@ namespace Farmdustry.Entities
         public void SetPlayerPositionAndVelocity(byte playerId, float y, float x, float yVelocity, float xVelocity)
         {
             //Add new player entries if they dont exist yet
-            if (playerId >= playersCount)
+            if (playerId >= Count)
             {
-                playersCount = (byte)(playerId + 1);
-                Array.Resize(ref players, playersCount);
+                Count = (byte)(playerId + 1);
+                Array.Resize(ref players, Count);
             }
 
             players[playerId].Y = y;
@@ -65,10 +63,10 @@ namespace Farmdustry.Entities
         public Player GetPlayerSnapshot(byte playerId)
         {
             //Add new player entries if they dont exist yet
-            if (playerId >= playersCount)
+            if (playerId >= Count)
             {
-                playersCount = (byte)(playerId + 1);
-                Array.Resize(ref players, playersCount);
+                Count = (byte)(playerId + 1);
+                Array.Resize(ref players, Count);
             }
 
             return players[playerId];
@@ -80,7 +78,7 @@ namespace Farmdustry.Entities
         /// <param name="deltaTime">The time between the previous update and now.</param>
         public void UpdatePlayers(float deltaTime)
         {
-            for (int i = 0; i < playersCount; i++)
+            for (int i = 0; i < Count; i++)
             {
                 players[i].Y += players[i].YVelocity * deltaTime * PLAYER_SPEED;
                 players[i].X += players[i].XVelocity * deltaTime * PLAYER_SPEED;

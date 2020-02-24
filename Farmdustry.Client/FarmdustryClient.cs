@@ -20,16 +20,14 @@ namespace Farmdustry.Client
     /// </summary>
     public class FarmdustryClient : Game
     {
-        GraphicsDeviceManager graphics;
+        private readonly GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        private KeyboardHandler keyboard = new KeyboardHandler();
-        private MouseHandler mouse = new MouseHandler();
+        private readonly KeyboardHandler keyboard = new KeyboardHandler();
+        private readonly MouseHandler mouse = new MouseHandler();
 
-        private Network.Client client = new Network.Client(25566);
+        private readonly Network.Client client = new Network.Client(25566);
         private byte playerId;
-
-        private UILayer ui;
 
         private TextureAtlas soilTextureAtlas;
         private TextureAtlas cropTextureAtlas;
@@ -40,11 +38,13 @@ namespace Farmdustry.Client
 
         private WorldGridRenderer worldGridRenderer;
 
-        private WorldGrid worldGrid = new WorldGrid();
+        private readonly WorldGrid worldGrid = new WorldGrid();
 
-        private PlayerList players = new PlayerList();
-        private Inventory.Inventory playerInventory = new Inventory.Inventory(Inventory.Inventory.PLAYER_INVENTORY_VOLUME);
-        private Hotbar playerHotbar = new Hotbar();
+        private readonly PlayerList players = new PlayerList();
+        private readonly Inventory.Inventory playerInventory = new Inventory.Inventory(Inventory.Inventory.PLAYER_INVENTORY_VOLUME);
+        private readonly Hotbar playerHotbar = new Hotbar();
+
+        private readonly ItemDropList itemDrops = new ItemDropList();
 
         public FarmdustryClient()
         {
@@ -84,50 +84,41 @@ namespace Farmdustry.Client
                             worldGrid.UpdateStructures(deltaTime);
                             break;
                         }
+
                     case CommandType.AddCrop:
                         {
-                            byte y = data[startingIndex + 3];
-                            byte x = data[startingIndex + 4];
-                            CropType cropType = (CropType)data[startingIndex + 5];
+                            byte y = data[startingIndex + 2];
+                            byte x = data[startingIndex + 3];
+                            CropType cropType = (CropType)data[startingIndex + 4];
                             worldGrid.AddCrop(y, x, cropType);
                             break;
                         }
                     case CommandType.RemoveCrop:
                         {
-                            byte y = data[startingIndex + 3];
-                            byte x = data[startingIndex + 4];
+                            byte y = data[startingIndex + 2];
+                            byte x = data[startingIndex + 3];
                             worldGrid.RemoveCrop(y, x, out _);
                             break;
                         }
                     case CommandType.AddStructure:
                         {
-                            byte y = data[startingIndex + 3];
-                            byte x = data[startingIndex + 4];
-                            StructureType structureType = (StructureType)data[startingIndex + 5];
+                            byte y = data[startingIndex + 2];
+                            byte x = data[startingIndex + 3];
+                            StructureType structureType = (StructureType)data[startingIndex + 4];
                             worldGrid.AddStructure(y, x, structureType);
                             break;
                         }
                     case CommandType.RemoveStructure:
                         {
-                            byte y = data[startingIndex + 3];
-                            byte x = data[startingIndex + 4];
+                            byte y = data[startingIndex + 2];
+                            byte x = data[startingIndex + 3];
                             worldGrid.RemoveStructure(y, x, out _);
-                            break;
-                        }
-                    case CommandType.UpdatePlayerLocation:
-                        {
-                            byte playerId = data[startingIndex + 2];
-                            float y = BitConverter.ToSingle(data.SubArray(startingIndex + 3, 4), 0);
-                            float x = BitConverter.ToSingle(data.SubArray(startingIndex + 7, 4), 0);
-                            float yVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 11, 4), 0);
-                            float xVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 15, 4), 0);
-                            players.SetPlayerPositionAndVelocity(playerId, y, x, yVelocity, xVelocity);
                             break;
                         }
                     case CommandType.AddItemToInventory:
                         {
                             byte playerId = data[startingIndex + 2];
-                            if(this.playerId != playerId)
+                            if (this.playerId != playerId)
                             {
                                 break;
                             }
@@ -148,10 +139,36 @@ namespace Farmdustry.Client
                             playerInventory.RemoveItem(itemType, amount);
                             break;
                         }
+                    case CommandType.SpawnItemDrop:
+                        {
+                            float y = BitConverter.ToSingle(data.SubArray(startingIndex + 2, 4), 0);
+                            float x = BitConverter.ToSingle(data.SubArray(startingIndex + 6, 4), 0);
+                            ItemType itemType = (ItemType)data[startingIndex + 10];
+                            byte amount = data[startingIndex + 11];
+                            itemDrops.Add(y, x, itemType, amount);
+                            break;
+                        }
+                    case CommandType.RemoveItemDrop:
+                        {
+                            int index = BitConverter.ToInt32(data.SubArray(startingIndex + 2, 4), 0);
+                            itemDrops.Remove(index);
+                            break;
+                        }
+                    case CommandType.UpdatePlayerLocation:
+                        {
+                            byte playerId = data[startingIndex + 2];
+                            float y = BitConverter.ToSingle(data.SubArray(startingIndex + 3, 4), 0);
+                            float x = BitConverter.ToSingle(data.SubArray(startingIndex + 7, 4), 0);
+                            float yVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 11, 4), 0);
+                            float xVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 15, 4), 0);
+                            players.SetPlayerPositionAndVelocity(playerId, y, x, yVelocity, xVelocity);
+                            break;
+                        }
+
                     case CommandType.SetPlayerId:
                         {
                             playerId = data[startingIndex + 2];
-                            
+
                             break;
                         }
                 }
@@ -199,8 +216,6 @@ namespace Farmdustry.Client
             keyboard.Update();
             mouse.Update();
 
-            ui.Update(mouse);
-
             { 
                 //Update player position
                 Vector2 velocity = new Vector2(keyboard.GetAxis(Keys.Q, Keys.D), keyboard.GetAxis(Keys.Z, Keys.S));
@@ -223,22 +238,22 @@ namespace Farmdustry.Client
             if (keyboard.IsPressed(Keys.D1))
             {
                 Player player = players.GetPlayerSnapshot(playerId);
-                client.Send(Commands.AddCrop(playerId, (byte)player.Y, (byte)player.X, CropType.Carrot));
+                client.Send(Commands.PlantCrop(playerId, (byte)player.Y, (byte)player.X, CropType.Carrot));
             }
             if (keyboard.IsPressed(Keys.D2))
             {
                 Player player = players.GetPlayerSnapshot(playerId);
-                client.Send(Commands.RemoveCrop(playerId, (byte)player.Y, (byte)player.X));
+                client.Send(Commands.HarvestCrop(playerId, (byte)player.Y, (byte)player.X));
             }
             if (keyboard.IsPressed(Keys.D3))
             {
                 Player player = players.GetPlayerSnapshot(playerId);
-                client.Send(Commands.AddStructure(playerId, (byte)player.Y, (byte)player.X, StructureType.Container));
+                client.Send(Commands.PlaceStructure(playerId, (byte)player.Y, (byte)player.X, StructureType.Container));
             }
             if (keyboard.IsPressed(Keys.D4))
             {
                 Player player = players.GetPlayerSnapshot(playerId);
-                client.Send(Commands.RemoveStructure(playerId, (byte)player.Y, (byte)player.X));
+                client.Send(Commands.DestroyStructure(playerId, (byte)player.Y, (byte)player.X));
             }
 
             if (mouse.ScrollWheelState != ScrollWheelState.Idle)
@@ -268,8 +283,6 @@ namespace Farmdustry.Client
                 Player player = players.GetPlayerSnapshot(i);
                 spriteBatch.Draw(playerTexture, new Rectangle((int)(player.X * 32 - 16), (int)(player.Y * 32 - 16), 32, 32), Color.White);
             }
-
-            ui.Draw(spriteBatch);
 
             spriteBatch.End();
 

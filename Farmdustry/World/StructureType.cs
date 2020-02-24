@@ -2,6 +2,6 @@
 {
     public enum StructureType
     {
-        Container = 0
+        Container = 1
     }
 }

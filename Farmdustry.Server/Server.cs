@@ -6,6 +6,7 @@ using System.Timers;
 using Farmdustry.Helper;
 using Farmdustry.Inventory;
 using Farmdustry.Entities;
+using System.Collections;
 
 namespace Farmdustry.Server
 {
@@ -13,15 +14,17 @@ namespace Farmdustry.Server
     {
         private const int TICK_RATE = 10;
         private static Timer timer;
-        private static Stopwatch deltaTimeStopwatch = new Stopwatch();
+        private static readonly Stopwatch deltaTimeStopwatch = new Stopwatch();
 
-        private static Network.Server server = new Network.Server(25566);
-        private static CommandList commandsToSendOnNextTick = new CommandList();
+        private static readonly Network.Server server = new Network.Server(25566);
+        private static readonly CommandList commandsToSendOnNextTick = new CommandList();
 
-        private static WorldGrid worldGrid = new WorldGrid();
+        private static readonly WorldGrid worldGrid = new WorldGrid();
 
-        private static PlayerList players = new PlayerList();
-        private static InventoryList inventories = new InventoryList();
+        private static readonly PlayerList players = new PlayerList();
+        private static readonly InventoryList inventories = new InventoryList();
+
+        private static readonly ItemDropList itemDrops = new ItemDropList();
 
         static void Main(string[] arguments)
         {
@@ -46,16 +49,14 @@ namespace Farmdustry.Server
 
         private static void DataReceived(byte[] data)
         {
-            Console.WriteLine($"Data received Length: {data.Length}");
+            //Console.WriteLine($"Data received Length: {data.Length}");
 
             int startingIndex = 0;
             while (startingIndex < data.Length)
             {
-                bool valid = false;
-
                 switch ((CommandType)data[startingIndex + 1])
                 {
-                    case CommandType.AddCrop:
+                    case CommandType.PlantCrop:
                         {
                             byte playerId = data[startingIndex + 2];
                             byte y = data[startingIndex + 3];
@@ -64,22 +65,26 @@ namespace Farmdustry.Server
 
                             inventories.GetInventory(playerId, out Inventory.Inventory inventory);
                             ItemType cropItemType = (ItemType)((int)cropType + 50);//Convert crop to seed item
+
                             //Check if player has enough seeds to plant a crop
                             if (inventory.RemoveItem(cropItemType, 1))
                             {
+                                worldGrid.AddCrop(y, x, cropType);
                                 AddDataToCommandList(Commands.RemoveItemFromInventory(playerId, cropItemType, 1));
-                                valid = worldGrid.AddCrop(y, x, cropType);
+                                AddDataToCommandList(Commands.AddCrop(y,x,cropType));
                             }
                             break;
                         }
-                    case CommandType.RemoveCrop:
+                    case CommandType.HarvestCrop:
                         {
                             byte playerId = data[startingIndex + 2];
                             byte y = data[startingIndex + 3];
                             byte x = data[startingIndex + 4];
 
-                            if(valid = worldGrid.RemoveCrop(y, x, out Crop crop))
+                            if(worldGrid.RemoveCrop(y, x, out Crop crop))
                             {
+                                AddDataToCommandList(Commands.RemoveCrop(y, x));
+
                                 inventories.GetInventory(playerId, out Inventory.Inventory inventory);
                                 ItemType cropItemType = (ItemType)((int)crop.Type + (50 * Convert.ToInt32(crop.Growth != 1))); //Convert crop to crop seed or item
 
@@ -90,26 +95,73 @@ namespace Farmdustry.Server
                                 }
                                 else
                                 {
-                                    //TODO Drop the item
+                                    AddDataToCommandList(Commands.SpawnItemDrop(y, x, cropItemType, 1));
                                 }
                             }
                             break;
                         }
-                    case CommandType.AddStructure:
+                    case CommandType.PlaceStructure:
                         {
                             byte playerId = data[startingIndex + 2];
                             byte y = data[startingIndex + 3];
                             byte x = data[startingIndex + 4];
                             StructureType structureType = (StructureType)data[startingIndex + 5];
-                            valid = worldGrid.AddStructure(y, x, structureType);
+
+                            //TODO: Check if player has enough items
+
+                            worldGrid.AddStructure(y, x, structureType);
+                            AddDataToCommandList(Commands.AddStructure(y, x, structureType));
                             break;
                         }
-                    case CommandType.RemoveStructure:
+                    case CommandType.DestroyStructure:
                         {
                             byte playerId = data[startingIndex + 2];
                             byte y = data[startingIndex + 3];
                             byte x = data[startingIndex + 4];
-                            valid = worldGrid.RemoveStructure(y, x, out _);
+
+                            worldGrid.RemoveStructure(y, x, out Structure structure);
+                            AddDataToCommandList(Commands.RemoveStructure(y, x));
+
+                            //TODO: Give back item to player
+                            break;
+                        }
+                    case CommandType.DropItem:
+                        {
+                            byte playerId = data[startingIndex + 2];
+                            float y = BitConverter.ToSingle(data.SubArray(startingIndex + 3, 4), 0);
+                            float x = BitConverter.ToSingle(data.SubArray(startingIndex + 7, 4), 0);
+                            ItemType itemType = (ItemType)data[startingIndex + 11];
+                            int amount = BitConverter.ToInt32(data.SubArray(startingIndex + 12, 4), 0);
+
+                            inventories.GetInventory(playerId, out Inventory.Inventory inventory);
+
+                            if (inventory.RemoveItem(itemType, amount))
+                            {
+                                itemDrops.Add(y, x, itemType, amount);
+                                AddDataToCommandList(Commands.RemoveItemFromInventory(playerId, itemType, amount));
+                                AddDataToCommandList(Commands.SpawnItemDrop(y, x, itemType, amount));
+                            }
+                            break;
+                        }
+                    case CommandType.PickupItem:
+                        {
+                            byte playerId = data[startingIndex + 2];
+                            float y = BitConverter.ToSingle(data.SubArray(startingIndex + 3, 4), 0);
+                            float x = BitConverter.ToSingle(data.SubArray(startingIndex + 7, 4), 0);
+
+                            inventories.GetInventory(playerId, out Inventory.Inventory inventory);
+                            IList itemDropsInRange = itemDrops.GetInRange(y, x, 1);
+
+                            //Add as many items in range to the player inventory
+                            foreach (int itemDropId in itemDropsInRange)
+                            {
+                                ItemDrop itemDrop = itemDrops.GetItemDropSnapshot(itemDropId);
+                                if (inventory.AddItem(itemDrop.Item, itemDrop.Amount))
+                                {
+                                    AddDataToCommandList(Commands.AddItemToInventory(playerId, itemDrop.Item, itemDrop.Amount));
+                                }
+                            }
+
                             break;
                         }
                     case CommandType.UpdatePlayerLocation:
@@ -119,40 +171,15 @@ namespace Farmdustry.Server
                             float x = BitConverter.ToSingle(data.SubArray(startingIndex + 7, 4), 0);
                             float yVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 11, 4), 0);
                             float xVelocity = BitConverter.ToSingle(data.SubArray(startingIndex + 15, 4), 0);
+
                             players.SetPlayerPositionAndVelocity(playerId, y, x, yVelocity, xVelocity);
+                            AddDataToCommandList(Commands.UpdatePlayerLocation(playerId, y, x, yVelocity, xVelocity));
                             //TODO Collision check
-                            valid = true;
-                            break;
-                        }
-                    case CommandType.AddItemToInventory:
-                        {
-                            byte playerId = data[startingIndex + 2];
-                            ItemType itemType = (ItemType)data[startingIndex + 3];
-                            int amount = BitConverter.ToInt32(data.SubArray(startingIndex + 4, 4), 0);
-
-                            inventories.GetInventory(playerId, out Inventory.Inventory inventory);
-                            valid = inventory.AddItem(itemType, amount);
-                            break;
-                        }
-                    case CommandType.RemoveItemFromInventory:
-                        {
-                            byte playerId = data[startingIndex + 2];
-                            ItemType itemType = (ItemType)data[startingIndex + 3];
-                            int amount = BitConverter.ToInt32(data.SubArray(startingIndex + 4, 4), 0);
-
-                            inventories.GetInventory(playerId, out Inventory.Inventory inventory);
-                            valid = inventory.RemoveItem(itemType, amount);
                             break;
                         }
                 }
 
                 byte dataSize = data[startingIndex];
-
-                if (valid)
-                {
-                    AddDataToCommandList(data.SubArray(startingIndex, dataSize));
-                }
-
                 startingIndex += dataSize;
             }
         }

@@ -266,7 +266,7 @@ namespace Farmdustry.World
             return cells[y, x].CropIndex != -1;
         }
         /// <summary>
-        /// Remove a crop from the gridworld.
+        /// Remove a crop from the worldgrid.
         /// </summary>
         /// <param name="y">The y coördinate containing the crop.</param>
         /// <param name="x">The x coördinate containing the crop.</param>

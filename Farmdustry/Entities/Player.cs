@@ -2,9 +2,9 @@
 {
     public struct Player
     {
-        public float Y { get; set; }
-        public float X { get; set; }
-        public float YVelocity { get; set; }
-        public float XVelocity { get; set; }
+        public float Y;
+        public float X;
+        public float YVelocity;
+        public float XVelocity;
     }
 }

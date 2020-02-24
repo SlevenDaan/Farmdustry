@@ -18,6 +18,8 @@
         Wheat = 2,
 
         CarrotSeed = 51,
-        WheatSeed = 52
+        WheatSeed = 52,
+
+        Container = 101
     }
 }

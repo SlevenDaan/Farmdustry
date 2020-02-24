@@ -1,24 +1,43 @@
 ﻿namespace Farmdustry.Network.Command
 {
     /*
-    0: Not used
-    1-199: Game Commands
+    0: Game Tick
+    1-149: Player Actions
+    150-199: Game Commands
     200-255: Network Commands
     */
     public enum CommandType
     {
         Tick = 1,
 
-        AddCrop = 10,
-        RemoveCrop = 11,
+        //------------Player Actions------------
 
-        AddStructure = 20,
-        RemoveStructure = 21,
+        PlantCrop = 10,
+        HarvestCrop = 11,
 
-        UpdatePlayerLocation = 30,
+        PlaceStructure = 20,
+        DestroyStructure = 21,
 
-        AddItemToInventory = 40,
-        RemoveItemFromInventory = 41,
+        DropItem = 30,
+        PickupItem = 31,
+
+        UpdatePlayerLocation = 40,
+
+        //------------Game Commands------------
+
+        AddCrop = 150,
+        RemoveCrop = 151,
+
+        AddStructure = 160,
+        RemoveStructure = 161,
+
+        AddItemToInventory = 170,
+        RemoveItemFromInventory = 171,
+
+        SpawnItemDrop = 180,
+        RemoveItemDrop = 181,
+
+        //------------Network Commands------------
 
         SetPlayerId = 200
     }

@@ -47,7 +47,7 @@ namespace Farmdustry.Inventory
             {
                 items.Add(itemType, 0);
             }
-            items[itemType] = amount;
+            items[itemType] += amount;
 
             //Add weight to the inventory
             Volume += addedWeight;

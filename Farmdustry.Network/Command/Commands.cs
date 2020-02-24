@@ -29,9 +29,11 @@ namespace Farmdustry.Network.Command
             return data;
         }
 
-        public static byte[] AddCrop(byte playerId, byte y, byte x, CropType type)
+        //------------Player Actions------------
+
+        public static byte[] PlantCrop(byte playerId, byte y, byte x, CropType type)
         {
-            byte[] data = CreateData(6, CommandType.AddCrop);
+            byte[] data = CreateData(6, CommandType.PlantCrop);
             data[2] = playerId;
             data[3] = y;
             data[4] = x;
@@ -39,18 +41,18 @@ namespace Farmdustry.Network.Command
             return data;
         }
 
-        public static byte[] RemoveCrop(byte playerId, byte y, byte x)
+        public static byte[] HarvestCrop(byte playerId, byte y, byte x)
         {
-            byte[] data = CreateData(5, CommandType.RemoveCrop);
+            byte[] data = CreateData(5, CommandType.HarvestCrop);
             data[2] = playerId;
             data[3] = y;
             data[4] = x;
             return data;
         }
 
-        public static byte[] AddStructure(byte playerId, byte y, byte x, StructureType type)
+        public static byte[] PlaceStructure(byte playerId, byte y, byte x, StructureType type)
         {
-            byte[] data = CreateData(6, CommandType.AddStructure);
+            byte[] data = CreateData(6, CommandType.PlaceStructure);
             data[2] = playerId;
             data[3] = y;
             data[4] = x;
@@ -58,12 +60,32 @@ namespace Farmdustry.Network.Command
             return data;
         }
 
-        public static byte[] RemoveStructure(byte playerId, byte y, byte x)
+        public static byte[] DestroyStructure(byte playerId, byte y, byte x)
         {
-            byte[] data = CreateData(5, CommandType.RemoveStructure);
+            byte[] data = CreateData(5, CommandType.DestroyStructure);
             data[2] = playerId;
             data[3] = y;
             data[4] = x;
+            return data;
+        }
+
+        public static byte[] DropItem(byte playerId, float y, float x, ItemType itemType, int amount)
+        {
+            byte[] data = CreateData(16, CommandType.DropItem);
+            data[2] = playerId;
+            BitConverter.GetBytes(y).CopyTo(data, 3);
+            BitConverter.GetBytes(x).CopyTo(data, 7);
+            data[11] = (byte)itemType;
+            BitConverter.GetBytes(amount).CopyTo(data, 12);
+            return data;
+        }
+
+        public static byte[] PickupItem(byte playerId, float y, float x)
+        {
+            byte[] data = CreateData(11, CommandType.PickupItem);
+            data[2] = playerId;
+            BitConverter.GetBytes(y).CopyTo(data, 3);
+            BitConverter.GetBytes(x).CopyTo(data, 7);
             return data;
         }
 
@@ -75,6 +97,42 @@ namespace Farmdustry.Network.Command
             BitConverter.GetBytes(x).CopyTo(data, 7);
             BitConverter.GetBytes(yVelocity).CopyTo(data, 11);
             BitConverter.GetBytes(xVelocity).CopyTo(data, 15);
+            return data;
+        }
+
+        //------------Game Commands------------
+
+        public static byte[] AddCrop(byte y, byte x, CropType type)
+        {
+            byte[] data = CreateData(5, CommandType.AddCrop);
+            data[2] = y;
+            data[3] = x;
+            data[4] = (byte)type;
+            return data;
+        }
+
+        public static byte[] RemoveCrop(byte y, byte x)
+        {
+            byte[] data = CreateData(4, CommandType.RemoveCrop);
+            data[2] = y;
+            data[3] = x;
+            return data;
+        }
+
+        public static byte[] AddStructure(byte y, byte x, StructureType type)
+        {
+            byte[] data = CreateData(5, CommandType.AddStructure);
+            data[2] = y;
+            data[3] = x;
+            data[4] = (byte)type;
+            return data;
+        }
+
+        public static byte[] RemoveStructure(byte y, byte x)
+        {
+            byte[] data = CreateData(4, CommandType.RemoveStructure);
+            data[2] = y;
+            data[3] = x;
             return data;
         }
 
@@ -95,6 +153,25 @@ namespace Farmdustry.Network.Command
             BitConverter.GetBytes(amount).CopyTo(data, 4);
             return data;
         }
+
+        public static byte[] SpawnItemDrop(float y, float x, ItemType itemType, int amount)
+        {
+            byte[] data = CreateData(15, CommandType.SpawnItemDrop);
+            BitConverter.GetBytes(y).CopyTo(data, 2);
+            BitConverter.GetBytes(x).CopyTo(data, 6);
+            data[10] = (byte)itemType;
+            BitConverter.GetBytes(x).CopyTo(data, 11);
+            return data;
+        }
+
+        public static byte[] RemoveItemDrop(int itemDropIndex)
+        {
+            byte[] data = CreateData(6, CommandType.RemoveItemDrop);
+            BitConverter.GetBytes(itemDropIndex).CopyTo(data, 2);
+            return data;
+        }
+
+        //------------Network Commands------------
 
         public static byte[] SetPlayerId(byte playerId)
         {

@@ -34,6 +34,7 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MonoGame.Framework, Version=3.7.1.189, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,12 +45,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\ItemDrop.cs" />
+    <Compile Include="Entities\ItemDropList.cs" />
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\PlayerList.cs" />
     <Compile Include="Inventory\Hotbar.cs" />
     <Compile Include="Inventory\Inventory.cs" />
     <Compile Include="Inventory\ItemLibrary.cs" />
-    <Compile Include="Inventory\ItemStack.cs" />
     <Compile Include="Inventory\ItemType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="World\Crop.cs" />

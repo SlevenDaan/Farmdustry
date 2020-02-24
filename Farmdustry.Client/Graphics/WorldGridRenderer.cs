@@ -106,7 +106,7 @@ namespace Farmdustry.Client.Graphics
                         continue;
                     }
 
-                    int structureTypeIndex = (int)currentStructure.Type;
+                    int structureTypeIndex = (int)currentStructure.Type - 1;
                     byte structureHeight = currentStructure.Height;
 
                     structureTextureAtlas.Draw(

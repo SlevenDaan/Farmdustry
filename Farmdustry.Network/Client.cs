@@ -65,7 +65,7 @@ namespace Farmdustry.Network
         {
             if (!IsConnected)
             {
-                throw new NetworkException("The client is not yet connected");
+                throw new NetworkException("The client is not connected");
             }
 
             try
